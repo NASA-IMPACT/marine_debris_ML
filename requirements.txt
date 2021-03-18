@@ -1,0 +1,10 @@
+numpy
+matplotlib
+geopandas
+requests
+tqdm
+joblib
+pillow
+pyproj
+shapely
+label-maker
