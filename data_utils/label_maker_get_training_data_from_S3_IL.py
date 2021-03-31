@@ -141,6 +141,7 @@ class Uploader:
         #_, status_code = self.upload_to_image_labeler(filename)
         #if status_code == 200:
         #os.remove(filename)
+        filename = filename[:-4]
         extent = get_bounding_box([f'{filename}.geojson')
         config = "config.json"
         new_geo_dics[f'{filename}.geojson'] = extent
