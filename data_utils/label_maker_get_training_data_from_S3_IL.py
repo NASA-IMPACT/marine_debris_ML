@@ -1,7 +1,7 @@
 """
 Use label maker to create training dataset
 author: @developmentseed
-under built docker image 'covid_sat_ml':
+
 run:
     python3 label_maker_get_training_data_from_S3_IL.py
 """
