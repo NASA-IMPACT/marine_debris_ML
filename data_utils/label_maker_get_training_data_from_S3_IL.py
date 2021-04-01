@@ -1,5 +1,7 @@
 """
-Use label maker to create training dataset
+Use label maker (https://github.com/developmentseed/label-maker/tree/c271189fbfd0f0c198184ef45032e16546e25243) 
+to create training dataset.
+
 author: @developmentseed
 
 run:
@@ -14,9 +16,11 @@ import base64
 import boto3
 import json
 import os
+import numpy as np
 import rasterio
 import requests
 import subprocess
+import geojson
 from glob import glob
 from rasterio.io import MemoryFile
 from rasterio.warp import reproject, calculate_default_transform, Resampling
@@ -27,21 +31,20 @@ ACCOUNT = os.environ['AWS_ACCOUNT_NUMBER']
 DEFAULT_CRS = 'EPSG:4326'
 DOWNLOAD_FOLDER = 'downloaded_files'
 
+GEOJSON_FOLDER = 'geojsons'
 
 S3_URL = f"s3://marine-litter-observations"
-class Uploader:
-    def __init__(self, profile_name, client_id, client_secret):
+class Processor:
+    def __init__(self, profile_name):
         """
         Initializer
         Args:
-            username (str): ImageLabeler Username
-            password (str): ImageLabeler Password
+            profile_name (str): AWS account profile name
         """
-        #self.request_token(username, password, client_id, client_secret)
-        Uploader.mkdir('updated')
+        Processor.mkdir('updated')
 
 
-    def create_training_data(config, new_geo_dics):
+    def create_training_data(self, config, new_geo_dics, basename, filename):
         """create lables.npz and tiles from AOIs
         ~~~~
         Args:
@@ -52,43 +55,46 @@ class Uploader:
         with open(config, 'r') as con_j:
             config_json = json.load(con_j)
         for key, value in new_geo_dics.items():
-            print(key, value)
             geojson = key
-            base_nm = geojson.split('.')[0]
+            base_nm = basename 
+            print("bounding_box: ", value)
             config_json['bounding_box'] = value
-            config_json['geojson'] = f"geojsons/{geojson}"
+            config_json['geojson'] = geojson 
+            config_json['imagery'] = filename+'.tif'
             with open(config, 'w') as con_n_j:
-            json.dump(config_json, con_n_j)
-            print(config_json)
+                json.dump(config_json, con_n_j)
+                print(config_json)
             cmd1 ="label-maker labels"
             os.system(cmd1)
-            cmd2 ="label-maker images"
+            cmd2 ="label-maker preview -n 10"
             os.system(cmd2)
+            cmd3 ="label-maker images"
+            os.system(cmd3)
             if not op.isdir(base_nm):
                 makedirs(f'data/{base_nm}')
             shutil.move('data/labels.npz', f'data/{base_nm}')
             shutil.move('data/tiles', f'data/{base_nm}/tiles')
 
-    def get_bounding_box(geojson):
-        with open(geojson) as f:
+    def get_bounding_box(self, geoj):
+        with open(geoj) as f:
             xcoords = []
             ycoords = []
             data = json.load(f)
             for feature in data['features']:
                 geom = feature['geometry']
                 for coord in geom['coordinates']:
-                if type(coord) == float:  # then its a point feature
-                    xcoords.append(geom['coordinates'][0])
-                    ycoords.append(geom['coordinates'][1])
-                elif type(coord) == list:
-                    for c in coord:
-                        if type(c) == float:  # then its a linestring feature
-                            xcoords.append(coord[0])
-                            ycoords.append(coord[1])
-                        elif type(c) == list:  # then its a polygon feature
-                            xcoords.append(c[0])
-                            ycoords.append(c[1])
-            coords = np.array(list(geojson.utils.coords(geometry)))
+                    if type(coord) == float:  # then its a point feature
+                        xcoords.append(geom['coordinates'][0])
+                        ycoords.append(geom['coordinates'][1])
+                    elif type(coord) == list:
+                        for c in coord:
+                            if type(c) == float:  # then its a linestring feature
+                                xcoords.append(coord[0])
+                                ycoords.append(coord[1])
+                            elif type(c) == list:  # then its a polygon feature
+                                xcoords.append(c[0])
+                                ycoords.append(c[1])
+                coords = np.array(list(geojson.utils.coords(geom)))
         return [min(xcoords), min(ycoords), max(xcoords), max(ycoords)]
 
     def read_geotiffs(self, file_name):
@@ -127,9 +133,9 @@ class Uploader:
         mem_tiff = zip_file.read(compressed_file)
         tiff_file = MemoryFile(mem_tiff).open()
         updated_profile = self.calculate_updated_profile(tiff_file)
-        with rasterio.open(filename, 'w', **updated_profile) as dst:
+        with rasterio.open(updated_filename, 'w', **updated_profile) as dst:
             for band in range(1, 4):
-                reproject(
+                dest = reproject(
                     source=rasterio.band(tiff_file, band),
                     destination=rasterio.band(dst, band),
                     src_transform=tiff_file.transform,
@@ -138,15 +144,20 @@ class Uploader:
                     dst_crs=DEFAULT_CRS,
                     resampling=Resampling.nearest
                 )
-        #_, status_code = self.upload_to_image_labeler(filename)
-        #if status_code == 200:
-        #os.remove(filename)
-        filename = filename[:-4]
-        extent = get_bounding_box([f'{filename}.geojson')
         config = "config.json"
-        new_geo_dics[f'{filename}.geojson'] = extent
-        create_training_data(config, new_geo_dics)
-        os.remove(filename)
+        new_geo_dics={}
+        filename = filename[:-4]
+        filename_split = os.path.splitext(filename) 
+        filename_zero, fileext = filename_split 
+        basename = os.path.basename(filename_zero) 
+        basename = basename[15:35]
+        basename = basename[0:8]+'_'+basename[9:]
+        print(f'geojson: {GEOJSON_FOLDER}/{basename}.geojson')
+        extent = self.get_bounding_box(f'{GEOJSON_FOLDER}/{basename}.geojson')
+        print(f"extent: {extent}")
+        new_geo_dics[f'{GEOJSON_FOLDER}/{basename}.geojson'] = extent
+        self.create_training_data(config, new_geo_dics, basename, filename)
+        #os.remove(filename)
         print(f"{filename} processed")
 
     def calculate_updated_profile(self, tiff_file):
@@ -184,12 +195,12 @@ class Uploader:
             os.mkdir(dirname)
             print(f'directory created: {dirname}')
 
-def main(profile_name, client_id, client_secret):
+def main(profile_name):
     session = boto3.session.Session(profile_name=profile_name)
     s3_connection = session.resource('s3')
     bucket = s3_connection.Bucket('marine-litter-observations')
-    uploader = Uploader(profile_namem client_id, client_secret)
-    Uploader.mkdir(DOWNLOAD_FOLDER)
+    processor = Processor(profile_name)
+    Processor.mkdir(DOWNLOAD_FOLDER)
     for s3_object in bucket.objects.all():
         if '.zip' in s3_object.key:
             filename = s3_object.key.split('/')[-1]
@@ -197,14 +208,10 @@ def main(profile_name, client_id, client_secret):
             zip_filename = f"{DOWNLOAD_FOLDER}/{filename}"
             bucket.download_file(s3_object.key, zip_filename)
             print("================ Download complete ================ ")
-            print("================ Upload in progress ================")
-            uploader.read_geotiffs(zip_filename)
+            print("================ In progress ================")
+            processor.read_geotiffs(zip_filename)
             print("================ Process Complete ================")
-            #extent = get_bounding_box([f'{filename}.geojson')
-            #new_geo_dics[f'{filename}.geojson'] = extent
-            #config = "config.json"
-            #create_training_data(config, new_geo_dics)
             #os.remove(f'{DOWNLOAD_FOLDER}/{filename}.tif')
 
+main(profile_name=os.environ['AWS_PROFILE_NAME'])
 
-main(profile_name=os.environ['AWS_PROFILE_NAME'], client_id=os.environ['AWS_ACCESS_KEY'], client_secret=os.environ['AWS_SECRET_ACCESS_KEY'])
