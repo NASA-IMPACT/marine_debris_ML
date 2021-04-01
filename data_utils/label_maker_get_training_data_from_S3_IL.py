@@ -8,18 +8,11 @@ run:
     python3 label_maker_get_training_data_from_S3_IL.py
 """
 
-import os
+import os, shutil, json, requests, subprocess, base64
 from os import makedirs, path as op
-import shutil
-
-import base64
 import boto3
-import json
-import os
 import numpy as np
 import rasterio
-import requests
-import subprocess
 import geojson
 from glob import glob
 from rasterio.io import MemoryFile
