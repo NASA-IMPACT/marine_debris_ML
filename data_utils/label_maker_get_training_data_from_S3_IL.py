@@ -2,7 +2,7 @@
 Use label maker (https://github.com/developmentseed/label-maker/tree/c271189fbfd0f0c198184ef45032e16546e25243) 
 to create training dataset.
 
-author: @developmentseed
+author: @developmentseed @NASA-IMPACT
 
 run:
     python3 label_maker_get_training_data_from_S3_IL.py
