@@ -1,5 +1,5 @@
 """
-Use label maker (https://github.com/developmentseed/label-maker/tree/c271189fbfd0f0c198184ef45032e16546e25243) 
+Use label maker (https://github.com/developmentseed/label-maker) 
 to create training dataset.
 
 author: @developmentseed @NASA-IMPACT
