@@ -67,6 +67,12 @@ class Processor:
                 makedirs(f'data/{base_nm}')
             shutil.move('data/labels.npz', f'data/{base_nm}')
             shutil.move('data/tiles', f'data/{base_nm}/tiles')
+            
+            tif_tiles = glob(f'data/{base_nm}/tiles'+'/**/*.tif',recursive=True)
+            for t in tif_tiles:
+                im = Image.open(t)
+                im.save(i[:-4]+'.jpg', "JPEG")
+                os.remove(t)
 
     def get_bounding_box(self, geoj):
         with open(geoj) as f:
@@ -143,7 +149,8 @@ class Processor:
         filename_split = os.path.splitext(filename) 
         filename_zero, fileext = filename_split 
         basename = os.path.basename(filename_zero) 
-        basename = basename[15:35]
+        basename = basename[15:]
+        basename =basename.replace('_3B_Visual','')
         basename = basename[0:8]+'_'+basename[9:]
         print(f'geojson: {GEOJSON_FOLDER}/{basename}.geojson')
         extent = self.get_bounding_box(f'{GEOJSON_FOLDER}/{basename}.geojson')
