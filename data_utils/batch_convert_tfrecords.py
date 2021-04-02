@@ -4,7 +4,7 @@ import shutil
 from glob import glob
 
 
-tif_tiles = glob(f'/path/to/labelmaker/data/'+'/**/*.tif',recursive=True)
+tif_tiles = glob(f'/path/to/planet/scenes/'+'/**/*.tif',recursive=True)
 
 labels_dir = f'/path/to/labelmaker/data/'
 
