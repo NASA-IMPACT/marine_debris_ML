@@ -16,18 +16,18 @@ python3 utils_convert_tfrecords.py    \
         --label_input=$folder/labels.npz   \
         --data_dir=tf_records   \
         --tiles_dir=$folder/tiles    \
-        --pbtxt=xview_hl_4cls.pbtxt
+        --pbtxt=classes.pbtxt
 """
 
 import os
 import io
+import glob
 import numpy as np
 from os import makedirs, path as op
 import shutil
 
 import pandas as pd
-# import tensorflow as tf
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
 from PIL import Image
 from object_detection.utils import dataset_util
@@ -43,7 +43,8 @@ flags.DEFINE_string('data_dir', '', 'Directory to write tfrecords into')
 flags.DEFINE_string('tiles_dir', '', 'Path to tiles dir that corresponds with labels.npz')
 flags.DEFINE_string('pbtxt', '', 'Path to pbtxt of TF object detection')
 flags.DEFINE_list('split_names', 'train, test, val', 'List of names for data set to be divided into')
-flags.DEFINE_list('split_vals', '.7, .1, .2', 'List of ratios for data set to be divided into')
+flags.DEFINE_list('split_vals', '1.0, 0, 0', 'List of ratios for data set to be divided into')
+flags.DEFINE_string('record_name', '', 'TFrecord output prefix')
 FLAGS = flags.FLAGS
 
 def class_text_to_int(pbtxt):
@@ -69,11 +70,8 @@ def remove_blank_tiles(labels, tiles_dir):
     for tile_nm in tile_names:
         f_nm = op.basename(tile_nm)
         img= op.join(tiles_dir, f'{f_nm}.jpg')
-        if op.exists(img):
-            # if file size < 7, remove
-            if op.getsize(img) < 7*1024:
-                removed_tiles.append(f_nm)
-    print(removed_tiles)
+        if not op.exists(img):
+            removed_tiles.append(f_nm)
     print(f"{len(removed_tiles)} tiles will be removed!")
     return removed_tiles
 
@@ -131,31 +129,31 @@ def create_tf_example(group, path):
 
 
 def main(_):
-    labels = np.load(op.join(os.getcwd(), FLAGS.label_input))
-    tiles_dir =op.join(os.getcwd(), FLAGS.tiles_dir)
-    all_tile_names = [tile for tile in labels.files]
-    print(f'we have total {len(all_tile_names)} tiles')
-    removed_tiles = remove_blank_tiles(labels, tiles_dir)
-    tile_names = _diff(all_tile_names, removed_tiles)
+    labels = np.load(FLAGS.label_input)
+    tiles_dir =FLAGS.tiles_dir
+    tile_names = glob.glob(FLAGS.tiles_dir+'/*.jpg')
+    print(f'we have total {len(tile_names)} tiles')
+    #removed_tiles = remove_blank_tiles(labels, tiles_dir)
     tile_names.sort()
     tiles = np.array(tile_names)
     region = FLAGS.label_input.split("/")[2]
 
     tf_tiles_info = []
     cl= class_text_to_int(FLAGS.pbtxt)
-    print(cl)
-    # re-assign the class map to 4 classes
-    cl_id_dict = {1:1,4:2, 5:3, 6:2, 7:4, 11:1}
+    cl_id_dict = {1:1}
     for tile in tiles:
+        tile = op.basename(tile)
+        tile = tile[:-4]
         bboxes = labels[tile].tolist()
+
         width, height = 256, 256
 
         if bboxes:
             for bbox in bboxes:
                 cl_id = int(bbox[4])
-                if cl_id in [1, 4, 5, 6, 7, 11]:
+                if cl_id in [1]:
                     cl_id=cl_id_dict[cl_id]
-                    cl_str =cl[cl_id]['name']
+                    cl_str ='marine_debris'
                     print(cl_id, cl_str)
                     bbox = [max(0, min(255, x)) for x in bbox[0:4]]
                     y = [f'{tile}.jpg', width, height, cl_str, cl_id, bbox[0], bbox[1], bbox[2], bbox[3]]
@@ -176,49 +174,53 @@ def main(_):
     train_df = split_dfs[0]
     print('train samples {}'.format(train_df.shape[0]))
 
-
+    """
     test_df = split_dfs[1]
     print('test samples {}'.format(test_df.shape[0]))
 
     val_df = split_dfs[2]
     print('val samples {}'.format(val_df.shape[0]))
+    """
 
     ### saving for training data stats
-    train_df.to_csv(f'{region}_train.csv')
-    test_df.to_csv(f'{region}_test.csv')
-    val_df.to_csv(f'{region}_val.csv')
+    train_df.to_csv(f'{FLAGS.data_dir}'+'/'+f'{FLAGS.record_name}_train.csv')
+    #test_df.to_csv(f'{FLAGS.data_dir}'+'/'+f'{FLAGS.record_name}_test.csv')
+    #val_df.to_csv(f'{FLAGS.data_dir}'+'/'+f'{FLAGS.record_name}_val.csv')
 
-    train_dir = op.join(FLAGS.data_dir, 'images', 'train')
-    test_dir = op.join(FLAGS.data_dir, 'images', 'test')
-    val_dir = op.join(FLAGS.data_dir, 'images', 'val')
+    train_dir = op.join(FLAGS.tiles_dir) #, 'train')
+    #test_dir = op.join(FLAGS.tiles_dir, 'test')
+    #val_dir = op.join(FLAGS.tiles_dir, 'val')
 
-    dir_list = train_dir, test_dir, val_dir
+    dir_list = train_dir #, test_dir, val_dir
     tile_path = FLAGS.tiles_dir
 
-    for d in dir_list:
-        if not op.isdir(d):
-            makedirs(d)
+    #_move_files(train_df, tile_path, d)
+    
+    #for d in dir_list:
+    #    if not op.isdir(d):
+    #        makedirs(d)
         #move train images
 
-        _move_files(train_df, tile_path, d)
+        #_move_files(train_df, tile_path, d)
 
         # move test images
-        _move_files(test_df, tile_path, d)
+        #_move_files(test_df, tile_path, d)
 
         # move validation images
-        _move_files(val_df, tile_path, d)
+        #_move_files(val_df, tile_path, d)
 
     # train TFRecords Creation
-    writer = tf.python_io.TFRecordWriter(f'{region}_train.records')
+    writer = tf.python_io.TFRecordWriter(f'{FLAGS.data_dir}'+'/'+f'{FLAGS.record_name}_train.records')
     grouped = split(train_df, 'filename')
     for group in grouped:
         tf_example = create_tf_example(group, train_dir)
         writer.write(tf_example.SerializeToString())
     writer.close()
     print('Successfully created train tf records.')
-
+    
+    """
     # Test TFRecords Creation
-    writer = tf.python_io.TFRecordWriter(f'{region}_test.records')
+    writer = tf.python_io.TFRecordWriter(f'{FLAGS.data_dir}'+'/'+f'{FLAGS.record_name}_test.records')
     grouped = split(test_df, 'filename')
     for group in grouped:
         tf_example = create_tf_example(group, test_dir)
@@ -227,13 +229,15 @@ def main(_):
     print('Successfully created test tf records.' )
 
     # Val TFRecords Creation
-    writer = tf.python_io.TFRecordWriter(f'{region}_val.records')
+    writer = tf.python_io.TFRecordWriter(f'{FLAGS.data_dir}'+'/'+f'{FLAGS.record_name}_val.records')
     grouped = split(val_df, 'filename')
     for group in grouped:
         tf_example = create_tf_example(group, val_dir)
         writer.write(tf_example.SerializeToString())
     writer.close()
     print('Successfully created val tf records.')
+    """
 
 if __name__ == '__main__':
     tf.app.run()
+
