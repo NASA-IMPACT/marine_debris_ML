@@ -159,7 +159,8 @@ def main(_):
                     y = [f'{tile}.jpg', width, height, cl_str, cl_id, bbox[0], bbox[1], bbox[2], bbox[3]]
                     tf_tiles_info.append(y)
 
-    split_n_samps = [len(tf_tiles_info) * float(val) for val in FLAGS.split_vals]
+    split_vals_l = [.7, .2, .1]                 
+    split_n_samps = [len(tf_tiles_info) * float(val) for val in split_vals_l] #FLAGS.split_vals]
 
     split_inds = np.cumsum(split_n_samps).astype(np.integer)
 
@@ -174,54 +175,52 @@ def main(_):
     train_df = split_dfs[0]
     print('train samples {}'.format(train_df.shape[0]))
 
-    """
     test_df = split_dfs[1]
     print('test samples {}'.format(test_df.shape[0]))
 
     val_df = split_dfs[2]
     print('val samples {}'.format(val_df.shape[0]))
-    """
 
     ### saving for training data stats
     train_df.to_csv(f'{FLAGS.data_dir}'+'/'+f'{FLAGS.record_name}_train.csv')
-    #test_df.to_csv(f'{FLAGS.data_dir}'+'/'+f'{FLAGS.record_name}_test.csv')
-    #val_df.to_csv(f'{FLAGS.data_dir}'+'/'+f'{FLAGS.record_name}_val.csv')
+    test_df.to_csv(f'{FLAGS.data_dir}'+'/'+f'{FLAGS.record_name}_test.csv')
+    val_df.to_csv(f'{FLAGS.data_dir}'+'/'+f'{FLAGS.record_name}_val.csv')
 
-    train_dir = op.join(FLAGS.tiles_dir) #, 'train')
-    #test_dir = op.join(FLAGS.tiles_dir, 'test')
-    #val_dir = op.join(FLAGS.tiles_dir, 'val')
+    train_dir = op.join(FLAGS.tiles_dir, 'train')
+    test_dir = op.join(FLAGS.tiles_dir, 'test')
+    val_dir = op.join(FLAGS.tiles_dir, 'val')
 
-    dir_list = train_dir #, test_dir, val_dir
+    dir_list = [train_dir, test_dir, val_dir]
     tile_path = FLAGS.tiles_dir
-
-    #_move_files(train_df, tile_path, d)
     
-    #for d in dir_list:
-    #    if not op.isdir(d):
-    #        makedirs(d)
+    for d in dir_list:
+        if not op.isdir(d):
+            makedirs(d)
         #move train images
 
-        #_move_files(train_df, tile_path, d)
+        _move_files(train_df, tile_path, d)
 
         # move test images
-        #_move_files(test_df, tile_path, d)
+        _move_files(test_df, tile_path, d)
 
         # move validation images
-        #_move_files(val_df, tile_path, d)
+        _move_files(val_df, tile_path, d)
 
     # train TFRecords Creation
     writer = tf.python_io.TFRecordWriter(f'{FLAGS.data_dir}'+'/'+f'{FLAGS.record_name}_train.records')
     grouped = split(train_df, 'filename')
+    print("Train grouped: ", len(grouped))
     for group in grouped:
         tf_example = create_tf_example(group, train_dir)
         writer.write(tf_example.SerializeToString())
     writer.close()
     print('Successfully created train tf records.')
     
-    """
+    
     # Test TFRecords Creation
     writer = tf.python_io.TFRecordWriter(f'{FLAGS.data_dir}'+'/'+f'{FLAGS.record_name}_test.records')
     grouped = split(test_df, 'filename')
+    print("Test grouped: ", len(grouped))
     for group in grouped:
         tf_example = create_tf_example(group, test_dir)
         writer.write(tf_example.SerializeToString())
@@ -231,12 +230,12 @@ def main(_):
     # Val TFRecords Creation
     writer = tf.python_io.TFRecordWriter(f'{FLAGS.data_dir}'+'/'+f'{FLAGS.record_name}_val.records')
     grouped = split(val_df, 'filename')
+    print("Val grouped: ", len(grouped))
     for group in grouped:
         tf_example = create_tf_example(group, val_dir)
         writer.write(tf_example.SerializeToString())
     writer.close()
     print('Successfully created val tf records.')
-    """
 
 if __name__ == '__main__':
     tf.app.run()
