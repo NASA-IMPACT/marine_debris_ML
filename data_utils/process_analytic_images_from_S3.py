@@ -1,9 +1,9 @@
 """
-Use label maker to create training dataset
-author: @developmentseed
+Script to batch process the raw analytic planet scenes into 3x NIR stacked images.
+author: @developmentseed @NASA-IMPACT
 
 run:
-    python3 label_maker_get_training_data_from_S3_IL.py
+    python3 process_analytic_images_from_S3.py
 """
 
 import os, sys
