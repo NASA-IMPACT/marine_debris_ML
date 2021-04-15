@@ -50,7 +50,7 @@ class Processor:
             file_name (str): path to downloaded geotiff.
         """
         foldername, _ = os.path.splitext(file_name)
-        Uploader.mkdir(foldername)
+        Processor.mkdir(foldername)
 
         with ZipFile(file_name) as zip_file:
             print("================ Reading files ================")
@@ -84,7 +84,7 @@ class Processor:
         tiff_file = MemoryFile(mem_tiff).open()
         
         tiff_file_r = tiff_file.read([4])
-        tiff_file_r = tiff_file_r.astype('uint8')
+        tiff_file_r = tiff_file_r #.astype('uint8')
         
         tiff_file_t = tiff_file_r.transpose(1,2,0)
 
@@ -135,7 +135,7 @@ class Processor:
             count=3,
             nodata=0,
             compress='lzw',
-            dtype='uint8'
+            dtype= 'uint16' #'uint8'
         )
         return profile
 
