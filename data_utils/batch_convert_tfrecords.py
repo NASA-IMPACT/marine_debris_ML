@@ -2,11 +2,11 @@ import os, sys
 from os import makedirs, path as op
 import shutil
 from glob import glob
+import subprocess
 
+tif_tiles = glob(f''+'/**/*.tif',recursive=True)
 
-tif_tiles = glob(f'/path/to/planet/scenes/'+'/**/*.tif',recursive=True)
-
-labels_dir = f'/path/to/labelmaker/data/'
+labels_dir = f''
 
 for tif in tif_tiles:
     filename_split = os.path.splitext(tif) 
@@ -16,8 +16,4 @@ for tif in tif_tiles:
     basename =basename.replace('_3B_Visual','')
     basename = basename[0:8]+'_'+basename[9:]
     
-    split_vals = [.7, .2, .1]
-    
-    cmd = f"python3 utils_convert_tfrecords_jpg.py --label_input={labels_dir}/{basename}/labels.npz --data_dir={labels_dir}/tf_records --tiles_dir={labels_dir}/{basename}/tiles --pbtxt=data/marine_debris.pbtxt --record_name {basename} --split_vals .7, .2, .1"
-    
-    os.system(cmd)
+    subprocess.run([f'python', 'utils_convert_tfrecords.py',f'--label_input={labels_dir}/{basename}/labels.npz', f'--data_dir={labels_dir}/tf_records', f'--tiles_dir={labels_dir}/{basename}/tiles', f'--pbtxt=data/marine_debris.pbtxt', f'--record_name={basename}'])
