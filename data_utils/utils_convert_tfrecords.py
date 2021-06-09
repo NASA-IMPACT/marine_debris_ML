@@ -159,7 +159,8 @@ def main(_):
                     y = [f'{tile}.jpg', width, height, cl_str, cl_id, bbox[0], bbox[1], bbox[2], bbox[3]]
                     tf_tiles_info.append(y)
 
-    split_vals_l = [.7, .2, .1]                 
+    #split_vals_l = [.7, .2, .1]   
+    split_vals_l = [1, 0, 0]               
     split_n_samps = [len(tf_tiles_info) * float(val) for val in split_vals_l] #FLAGS.split_vals]
 
     split_inds = np.cumsum(split_n_samps).astype(np.integer)
@@ -170,15 +171,29 @@ def main(_):
     df = df.sample(frac=1)
     print(df.head(20))
 
+    df_filesnames = df.filename.unique()
+
+    first_filename = df_filesnames[0]
+    final_filename = df_filesnames[-1]
+
+    print("first_filename: ", first_filename)
+    print("final_filename: ", final_filename)
+    
+    train_df = df[df.filename != first_filename]
+    train_df = train_df[train_df.filename != final_filename]
+
+    val_df = df.loc[df['filename'] == first_filename]
+    test_df = df.loc[df['filename'] == final_filename]
+
     split_dfs = np.split(df, split_inds[:-1])
 
-    train_df = split_dfs[0]
+    #train_df = split_dfs[0]
     print('train samples {}'.format(train_df.shape[0]))
 
-    test_df = split_dfs[1]
+    #test_df = split_dfs[1]
     print('test samples {}'.format(test_df.shape[0]))
 
-    val_df = split_dfs[2]
+    #val_df = split_dfs[2]
     print('val samples {}'.format(val_df.shape[0]))
 
     ### saving for training data stats
