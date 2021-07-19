@@ -2,8 +2,8 @@
 
 Floating marine debris is a global pollution problem which threatens marine and human life and leads to the loss of biodiversity.Large swaths of marine debris are also navigational hazards to vessels. Artificial intelligence, specifically deep learning, can beused to detect floating marine debris in satellite imagery. This paper presents an application of a deep learning model designedfor object detection in the TensorFlow framework for observing marine debris floating on the surface of the ocean. The modelwas trained on our custom-labeled dataset of 1370 polygons containing marine debris as observed in Planetscope opticalimagery which has a spatial resolution of approximately 3 meters. An overall precision score of 0.78 and recall score of 0.70were obtained on the test dataset. In this paper, we highlight the strong potential of using commercial small satellite imagery fordetecting marine debris pollution and strengthen current and future efforts to clean the oceans.
 
-<img src="https://github.com/NASA-IMPACT/marine_litter_ML/tree/v0_2/assets/predictions0.png" width="800px" height="auto">
-<img src="https://github.com/NASA-IMPACT/marine_litter_ML/tree/v0_2/assets/predictions1.png" width="800px" height="auto">
+<img src="assets/predictions0.png" width="800px" height="auto">
+<img src="assets/predictions1.png" width="800px" height="auto">
 
 Paper and dataset forthcoming.
 
@@ -16,13 +16,13 @@ After training is complete, we export the best model to [TensorFlow serving form
 For inference, we use the [Planet tile endpoint](https://developers.planet.com/docs/basemaps/tile-services/) to request a list of [XYZ tiles](https://developers.planet.com/planetschool/xyz-tiles-and-slippy-maps/) for a given area of interest and time range. We send that list of tiles via [SQS](https://aws.amazon.com/sqs/) to our inference endpoint, and once deployed, we can inference at a rate of 3000 tiles of size 256x256 pixels per minute. The results written to the database include, for each XYZ tile, the original Planet image scene ID and XYZ tile name (containing the x coordinate, y coordinate and zoom level) and one or more bounding box coordinates, class values and confidence scores. We use the python utility, [Mercantile](https://github.com/mapbox/mercantile), to translate the XYZ coordinates to latitude and longitude coordinates and finally, export the final predictions with a minimum confidence threshold to GeoJSON format. The GeoJSON files are used for display in an online dashboard.
 
 Tiled images with and plotted annotations:
-<img src="https://github.com/NASA-IMPACT/marine_litter_ML/tree/v0_2/assets/tiled_example.png" width="800px" height="auto">
+<img src="assets/tiled_example.png" width="800px" height="auto">
 
 Scaled model inference pipeline:
-<img src="https://github.com/NASA-IMPACT/marine_litter_ML/tree/v0_2/assets/model_inference.png" width="800px" height="auto">
+<img src="assets/model_inference.png" width="800px" height="auto">
 
 Detections geo-registered and vecorized to GeoJSON format:
-<img src="https://github.com/NASA-IMPACT/marine_litter_ML/tree/v0_2/assets/detections_geo.png" width="800px" height="auto">
+<img src="assets/detections_geo.png" width="800px" height="auto">
  
 # Implementation
 
