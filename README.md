@@ -8,6 +8,21 @@ Floating marine debris is a global pollution problem which threatens marine and 
 
 *Paper and dataset forthcoming.*
 
+## Data
+
+Planet small satellite imagery is utilized in this study. Specifically, the 3-meter imagery product called Planetscope. This imagery has four bands namely red, green, blue, and near-infrared. The combination of fairly high spatial resolution, high temporal resolution, availability of a near-infrared channel and global coverage of coastlines made this imagery quite advantageous for the purposes of this research. With these imagery specifications as well as plastic size and ghost fishing net size categories, we anticipated our model would be capable of detecting aggregated debris flotsam as well as some mega plastics including medium to large size ghost fishing nets.
+
+Using the Planet Explorer, specific image scenes consisting of visible marine debris patches were selected for our training dataset. This step involved manually exploring Planetscope scenes and verifying the presence of marine debris. For this initial study, we decided to focus our efforts on detecting marine debris from optical (red, green, blue) channel imagery. Initial investigation into the utility of the Planetscope near-infrared channel was conducted, and future work will integrate the near-infrared channel.
+
+We used [Image Labeler](https://impact.earthdata.nasa.gov/labeler/) to manually digitize bounding box annotations for observable debris on Planetscope optical imagery. A total of 1370 bounding boxes were labeled on the image scenes. This constituted the initial training, testing and validation dataset for object detection modeling.
+
+The next task was to prepare the dataset in model-ready format, which entailed tiling the image scenes into smaller frames and encoding the bounding boxes into coordinate arrays with numerical class ids. The need for tiling the imagery stems from computational efficiency at model runtime. To accomplish these tasks, we used [Label Maker (LM)](https://github.com/developmentseed/label-maker). We used zoom level 16 as it most closely approximates the native spatial resolution of Planetscope imagery. Finally, the dataset in compressed array format was used to create binary TensorFlow Records datasets.
+
+
+
+Tiled images with plotted annotations:
+<img src="assets/tiled_example.png" width="800px" height="auto">
+
 ## Model
 Our architecture of choice for this project is [SSD Resnet 101 Feature Pyramid Network (FPN)](https://arxiv.org/abs/1708.02002), which we've implemented with the [Tensorflow Object Detection API](https://github.com/tensorflow/models/tree/master/research/object_detection). We employed a weighted sigmoid focal loss
 and transfer learning for our baseline model from a [pre-trained resnet 101 checkpoint](http://download.tensorflow.org/models/object_detection/ssd_resnet101_v1_fpn_shared_box_predictor_oid_512x512_sync_2019_01_20.tar.gz) hosted on Tensorflow model zoo. Our best model currently performs with a test F1 score of 0.74.
@@ -15,9 +30,6 @@ and transfer learning for our baseline model from a [pre-trained resnet 101 chec
 After training is complete, we export the best model to [TensorFlow serving format](https://www.tensorflow.org/tfx/guide/serving), package the trained model weights and inference code into a [Docker](https://www.docker.com/) image and deploy at scale through our inference pipeline (shown below).
 
 For inference, we use the [Planet tile endpoint](https://developers.planet.com/docs/basemaps/tile-services/) to request a list of [XYZ tiles](https://developers.planet.com/planetschool/xyz-tiles-and-slippy-maps/) for a given area of interest and time range. We send that list of tiles via [SQS](https://aws.amazon.com/sqs/) to our inference endpoint, and once deployed, we can inference at a rate of 3000 tiles of size 256x256 pixels per minute. The results written to the database include, for each XYZ tile, the original Planet image scene ID and XYZ tile name (containing the x coordinate, y coordinate and zoom level) and one or more bounding box coordinates, class values and confidence scores. We use the python utility, [Mercantile](https://github.com/mapbox/mercantile), to translate the XYZ coordinates to latitude and longitude coordinates and finally, export the final predictions with a minimum confidence threshold to GeoJSON format. The GeoJSON files are used for display in an online dashboard.
-
-Tiled images with plotted annotations:
-<img src="assets/tiled_example.png" width="800px" height="auto">
 
 Scaled model inference pipeline:
 <img src="assets/model_inference.png" width="800px" height="auto">
