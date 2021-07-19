@@ -152,31 +152,5 @@ export EXPORT_DIR=models/research/object_detection/model_50k
 python3 ${base_dir}/tf_od_predict_image_aug_to_geo_corrected.py --model_name=${EXPORT_DIR} --path_to_label=${base_dir}/marine_debris.pbtxt --test_image_path=${base_dir}/test/
 ```
 
-### Scaled deployment with Docker
-
-Run the below code to build and push a docker image that may be used within a scalable inference pipeline.
-
-```
-INPUT_TYPE=encoded_image_string_tensor
-PIPELINE_CONFIG_PATH=training/ssd_resnet101_v1_fpn_multilabel.config
-TRAINED_CKPT_PREFIX=training/model.ckpt-50000
-EXPORT_DIR=training/001
-
-python3 export_inference_graph.py \
-    --input_type=${INPUT_TYPE} \
-    --pipeline_config_path=${PIPELINE_CONFIG_PATH} \
-    --trained_checkpoint_prefix=${TRAINED_CKPT_PREFIX} \
-    --output_directory=${EXPORT_DIR}
-    
-## building gpu base and containerized inference image 
-docker run -d --name serving_base_ tensorflow/serving:1.14.0-gpu
-#under training
-docker cp training_50k serving_base_:/models/50k_od_model
-docker commit --change "ENV MODEL_NAME 50k_od_model" serving_base_ lthomas/50k_od_model-gpu:v1-gpu
-docker kill serving_base_
-docker container prune
-docker push lthomas/50k_od_model-gpu:v1-gpu
-```
-
 ## Evaluation
 You can use the [code](https://github.com/NASA-IMPACT/marine_litter_ML/tree/main/evaluation_utils) in this folder to compute standard evaluation metrics with your model. Runtime and background instructions live [here](https://github.com/NASA-IMPACT/marine_litter_ML/tree/main/evaluation_utils/evaluation.md).
