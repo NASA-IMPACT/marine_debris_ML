@@ -2,10 +2,11 @@
 
 Floating marine debris is a global pollution problem which threatens marine and human life and leads to the loss of biodiversity. Large swaths of marine debris are also navigational hazards to vessels. Artificial intelligence, specifically deep learning, can be used to detect floating marine debris in satellite imagery. In this project, we seek to demonstrate the strong potential of using commercial small satellite imagery for detecting marine debris pollution and strengthening current and future efforts to clean the oceans. We present an application of a deep learning model designed for object detection in the TensorFlow framework for observing marine debris floating on the surface of the ocean. The model was trained on our custom-labeled dataset of 1370 polygons containing marine debris as observed in Planetscope optical imagery which has a spatial resolution of approximately 3 meters. An overall precision score of 0.78 and recall score of 0.70 were obtained on the test dataset. 
 
+*Model performance on test images:*
 <img src="assets/predictions0.png" width="800px" height="auto">
 <img src="assets/predictions1.png" width="800px" height="auto">
 
-Paper and dataset forthcoming.
+*Paper and dataset forthcoming.*
 
 ## Model
 Our architecture of choice for this project is [SSD Resnet 101 Feature Pyramid Network (FPN)](https://arxiv.org/abs/1708.02002), which we've implemented with the [Tensorflow Object Detection API](https://github.com/tensorflow/models/tree/master/research/object_detection). We employed a weighted sigmoid focal loss
