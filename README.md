@@ -16,7 +16,7 @@ Using the Planet Explorer, specific image scenes consisting of visible marine de
 
 We used [Image Labeler](https://impact.earthdata.nasa.gov/labeler/) to manually digitize bounding box annotations for observable debris on Planetscope optical imagery. A total of 1370 bounding boxes were labeled on the image scenes. This constituted the initial training, testing and validation dataset for object detection modeling.
 
-The next task was to prepare the dataset in model-ready format, which entailed tiling the image scenes into smaller frames and encoding the bounding boxes into coordinate arrays with numerical class ids. The need for tiling the imagery stems from computational efficiency at model runtime. To accomplish these tasks, we used [Label Maker (LM)](https://github.com/developmentseed/label-maker). We used zoom level 16 as it most closely approximates the native spatial resolution of Planetscope imagery. Finally, the dataset in compressed array format was used to create binary TensorFlow Records datasets.
+The next task was to prepare the dataset in model-ready format, which entailed tiling the image scenes into smaller frames and encoding the bounding boxes into coordinate arrays with numerical class ids. The need for tiling the imagery stems from computational efficiency at model runtime. To accomplish these tasks, we used [Label Maker (LM)](https://github.com/developmentseed/label-maker). We used zoom level 16 as it most closely approximates the native spatial resolution of Planetscope imagery. Finally, the dataset in compressed array format (.npz) was used to create binary TensorFlow Records datasets.
 
 
 
