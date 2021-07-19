@@ -15,13 +15,13 @@ After training is complete, we export the best model to [TensorFlow serving form
 
 For inference, we use the [Planet tile endpoint](https://developers.planet.com/docs/basemaps/tile-services/) to request a list of [XYZ tiles](https://developers.planet.com/planetschool/xyz-tiles-and-slippy-maps/) for a given area of interest and time range. We send that list of tiles via [SQS](https://aws.amazon.com/sqs/) to our inference endpoint, and once deployed, we can inference at a rate of 3000 tiles of size 256x256 pixels per minute. The results written to the database include, for each XYZ tile, the original Planet image scene ID and XYZ tile name (containing the x coordinate, y coordinate and zoom level) and one or more bounding box coordinates, class values and confidence scores. We use the python utility, [Mercantile](https://github.com/mapbox/mercantile), to translate the XYZ coordinates to latitude and longitude coordinates and finally, export the final predictions with a minimum confidence threshold to GeoJSON format. The GeoJSON files are used for display in an online dashboard.
 
-Tiled images with and plotted annotations:
+Tiled images with plotted annotations:
 <img src="assets/tiled_example.png" width="800px" height="auto">
 
 Scaled model inference pipeline:
 <img src="assets/model_inference.png" width="800px" height="auto">
 
-Detections geo-registered and vecorized to GeoJSON format:
+Detections geo-registered and vectorized to GeoJSON format:
 <img src="assets/detections_geo.png" width="800px" height="auto">
  
 # Implementation
