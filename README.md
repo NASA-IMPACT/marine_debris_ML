@@ -179,4 +179,4 @@ docker push lthomas/50k_od_model-gpu:v1-gpu
 ```
 
 ## Evaluation
-You can use the [code](https://github.com/NASA-IMPACT/covid-satellite-ml/tree/master/evaluation_utils) in this folder to compute standard evaluation metrics with your model. Runtime and background instructions live [here](https://github.com/NASA-IMPACT/covid-satellite-ml/blob/master/evaluation_utils/evaluation.md).
+You can use the [code](https://github.com/NASA-IMPACT/marine_litter_ML/tree/main/evaluation_utils) in this folder to compute standard evaluation metrics with your model. Runtime and background instructions live [here](https://github.com/NASA-IMPACT/marine_litter_ML/tree/main/evaluation_utils/evaluation.md).
