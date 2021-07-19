@@ -77,7 +77,7 @@ Now your current directory should be `models/research/object_detection/` and in 
 models/research/object_detection/
 ├── ssd_resnet101_v1_fpn_multilabel/
 ├── training/
-│   └── ssd_resnet101_v1_fpn_multilabel.config
+│   └── ssd_resnet101_v1_fpn_marine_debris.config
 ├── data/
 │   ├── train.record
 │   ├── val.record
