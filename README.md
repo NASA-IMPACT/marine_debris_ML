@@ -20,7 +20,8 @@ We used [Image Labeler](https://impact.earthdata.nasa.gov/labeler/) to manually 
 
 The next task was to prepare the dataset in model-ready format, which entailed tiling the image scenes into smaller frames and encoding the bounding boxes into coordinate arrays with numerical class ids. The need for tiling the imagery stems from computational efficiency at model runtime. To accomplish these tasks, we used [Label Maker (LM)](https://github.com/developmentseed/label-maker). We used zoom level 16 as it most closely approximates the native spatial resolution of Planetscope imagery. An example configuration file for use with LM is located at *data_utils/config.json*. Finally, the dataset in compressed array format (.npz) was used to create binary TensorFlow Records datasets.
 
-
+Tiled image with labels.npz entry (bounding box annotation coordinats [xmin, ymin, xmax, ymax] and class ID 1):
+<img src="assets/tiled_example_npz.png" width="800px" height="auto">
 
 Tiled images with plotted annotations:
 <img src="assets/tiled_example.png" width="800px" height="auto">
@@ -35,9 +36,6 @@ For inference, we use the [Planet tile endpoint](https://developers.planet.com/d
 
 Scaled model inference pipeline:
 <img src="assets/model_inference.png" width="800px" height="auto">
-
-Detections geo-registered and vectorized to GeoJSON format:
-<img src="assets/detections_geo.png" width="800px" height="auto">
  
 ## Implementation
 
@@ -153,6 +151,9 @@ export base_dir=models/research/object_detection
 export EXPORT_DIR=models/research/object_detection/model_50k
 python3 ${base_dir}/tf_od_predict_image_aug_to_geo_corrected.py --model_name=${EXPORT_DIR} --path_to_label=${base_dir}/marine_debris.pbtxt --test_image_path=${base_dir}/test/
 ```
+
+Detections geo-registered and vectorized to GeoJSON format:
+<img src="assets/detections_geo.png" width="800px" height="auto">
 
 ### 8. Evaluation
 You can use the [code](https://github.com/NASA-IMPACT/marine_litter_ML/tree/main/evaluation_utils) in this folder to compute standard evaluation metrics with your model. Runtime and background instructions live [here](https://github.com/NASA-IMPACT/marine_litter_ML/tree/main/evaluation_utils/evaluation.md).
