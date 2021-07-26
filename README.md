@@ -20,7 +20,7 @@ We used [Image Labeler](https://impact.earthdata.nasa.gov/labeler/) to manually 
 
 The next task was to prepare the dataset in model-ready format, which entailed tiling the image scenes into smaller frames and encoding the bounding boxes into coordinate arrays with numerical class ids. The need for tiling the imagery stems from computational efficiency at model runtime. To accomplish these tasks, we used [Label Maker (LM)](https://github.com/developmentseed/label-maker). We used zoom level 16 as it most closely approximates the native spatial resolution of Planetscope imagery. An example configuration file for use with LM is located at *data_utils/config.json*. Finally, the dataset in compressed array format (.npz) was used to create binary TensorFlow Records datasets.
 
-Tiled image with labels.npz entry (bounding box annotation coordinats [xmin, ymin, xmax, ymax] and class ID 1):
+Tiled image with labels.npz entry. On the right are the bounding box annotation coordinates [xmin, ymin, xmax, ymax] and class ID 1, with the image array on the bottom:
 <img src="assets/tiled_example_npz.png" width="800px" height="auto">
 
 Tiled images with plotted annotations:
