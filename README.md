@@ -116,7 +116,7 @@ python model_main.py --alsologtostderr --model_dir=training/ --pipeline_config_p
 The model checkpoints and outputs for this task will save in the `training` folder. 
 
 ### 6. Visualize the Model
-Using this [script](https://github.com/NASA-IMPACT/marine_litter_ML/tree/main/object_detection_api/export_inference_graph.py), create the building detection model inference graph with:
+Using this [script](https://github.com/NASA-IMPACT/marine_litter_ML/tree/main/object_detection_api/export_inference_graph.py), create the marine debris detection model inference graph with:
 
 ```shell
 python export_inference_graph.py --input_type image_tensor \
@@ -144,7 +144,7 @@ python tf_od_predict_image_aug_to_geo_corrected.py --model_name=model_50k \
                         --path_to_label=data/marine_debris.pbtxt \
                         --test_image_path=path/to/test/image/tiles
 ```
-This code will read through all your test images in `path/to/test/image/tiles` folder and output the final prediction into the same folder. You will see a final prediction like this the first graph shows above.
+This code will read through all your test images in `path/to/test/image/tiles` folder and output the final prediction into the same folder. You will find new images in `test_image_path` with the `_test` suffixed to the end of the file basenames. The are images with the predicted bounding boxes and confidence scores plotted on top. As well, you will find a multipolygon geojson of predicted bounding boxes in the `test_image_path`. 
 
 Option for flags:
 

@@ -115,7 +115,7 @@ def tf_od_pred():
     
     geoname = FLAGS.scene_id
     print(f"features for {geoname} are {features}")
-    with open(f"./marine_litter/data_geo/{geoname}.geojson", 'w') as geoj:
+    with open(f"{FLAGS.test_image_path}/{geoname}.geojson", 'w') as geoj:
         json.dump(fc(features), geoj)
 
 
