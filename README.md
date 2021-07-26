@@ -137,7 +137,7 @@ Go to `http://127.0.0.1:6006/` in your web browser and you will see:
 </p>
 
 ### 7. Prediction
-Now let's run the model over our test tiles to predict where buildings are. Copy [this script](https://github.com/NASA-IMPACT/marine_litter_ML/blob/v0_2/inference_utils/tf_od_predict_image_aug_to_geo_corrected.py) to the TOD directory then run:
+Now let's run the model over our test tiles to predict where marine debris patches are. Copy [this script](https://github.com/NASA-IMPACT/marine_litter_ML/blob/v0_2/inference_utils/tf_od_predict_image_aug_to_geo_corrected.py) to the TOD directory then run:
 
 ```shell
 python tf_od_predict_image_aug_to_geo_corrected.py --model_name=model_50k \
