@@ -10,7 +10,7 @@ Floating marine debris is a global pollution problem which threatens marine and 
 
 ## Overview
 
-### 1.0 Data
+### 1. Data
 
 Planet small satellite imagery is utilized in this study. Specifically, the 3-meter imagery product called Planetscope. This imagery has four bands namely red, green, blue, and near-infrared. The combination of fairly high spatial resolution, high temporal resolution, availability of a near-infrared channel and global coverage of coastlines made this imagery quite advantageous for the purposes of this research. With these imagery specifications as well as plastic size and ghost fishing net size categories, we anticipated our model would be capable of detecting aggregated debris flotsam as well as some mega plastics including medium to large size ghost fishing nets.
 
@@ -63,7 +63,7 @@ tensorflow-gpu==1.14.0
 
 You could also work from this [codebase](https://github.com/NASA-IMPACT/marine_litter_ML/tree/main/object_detection_api) as a stable implementation with the above listed TF library versions. Just ensure that repo folder is set as `models/research/object_detection/`.
 
-### 2b. Create TFRecords for model training
+## 3. Create TFRecords for model training
 Tensorflow API supports a variety of file formats. The TFRecord file format is a simple record-oriented binary format that many TensorFlow applications use. We have example code in this repo which converts the `labels.npz` file to a TFRecords file:
 
 - Copy [`utils_convert_tfrecords.py` from this repo](https://github.com/NASA-IMPACT/marine_litter_ML/blob/main/data_utils/utils_convert_tfrecords.py) to the TOD directory, .
@@ -79,7 +79,7 @@ python3 utils_convert_tfrecords.py    \
 ```
 This will create `train.record`, `val.record` and `test.record` files in a folder called `tf_records` in the TOD directory. Each record file contains different and non-overlapping partitions of the data (86,7,7 percents, respectively).
 
-### 2c. Object detection model setup
+### 4. Object detection model setup
 Now we're ready to set up the model architecture. For this walkthrough, we'll download a pre-trained model from the [TensorFlow model zoo](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/tf1_detection_zoo.md). We'll demonstrate using [`ssd_resnet_101_fpn_oidv4`](http://download.tensorflow.org/models/object_detection/ssd_resnet101_v1_fpn_shared_box_predictor_oid_512x512_sync_2019_01_20.tar.gz) (download link):
   - Download the model, unzip, and move the folder to the TOD directory
   - Create a new folder `training` in the TOD directory.
@@ -101,7 +101,7 @@ models/research/object_detection/
 └───
 ```
 
-## 2d. Train the TensorFlow object detection model
+## 5. Train the TensorFlow object detection model
 You are now ready to train the model. From the `models/research/` directory, run:
 
 ```shell
@@ -115,7 +115,7 @@ python model_main.py --alsologtostderr --model_dir=training/ --pipeline_config_p
 
 The model checkpoints and outputs for this task will save in the `training` folder. 
 
-## 2e. Visualize the Model
+## 6. Visualize the Model
 Using this [script](https://github.com/NASA-IMPACT/marine_litter_ML/tree/main/object_detection_api/export_inference_graph.py), create the building detection model inference graph with:
 
 ```shell
@@ -136,7 +136,7 @@ Go to `http://127.0.0.1:6006/` in your web browser and you will see:
 <img src="assets/tensorboard.png" width="1000" />
 </p>
 
-## 2f. Prediction
+## 7. Prediction
 Now let's run the model over our test tiles to predict where buildings are. Copy [this script](https://github.com/NASA-IMPACT/marine_litter_ML/blob/v0_2/inference_utils/tf_od_predict_image_aug_to_geo_corrected.py) to the TOD directory then run:
 
 ```shell
@@ -154,5 +154,5 @@ export EXPORT_DIR=models/research/object_detection/model_50k
 python3 ${base_dir}/tf_od_predict_image_aug_to_geo_corrected.py --model_name=${EXPORT_DIR} --path_to_label=${base_dir}/marine_debris.pbtxt --test_image_path=${base_dir}/test/
 ```
 
-## 2g. Evaluation
+## 8. Evaluation
 You can use the [code](https://github.com/NASA-IMPACT/marine_litter_ML/tree/main/evaluation_utils) in this folder to compute standard evaluation metrics with your model. Runtime and background instructions live [here](https://github.com/NASA-IMPACT/marine_litter_ML/tree/main/evaluation_utils/evaluation.md).
