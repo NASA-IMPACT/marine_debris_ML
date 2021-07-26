@@ -8,7 +8,7 @@ That script requires arguments for the input tfrecords files (comma separated li
 
 Example usage:
 
-from ` % models/research/object_detection/` run `python3 inference/infer_detections.py --input_tfrecord_paths=testrecords/test.records,testrecords/z16_asia_p1_test.records,testrecords/z16_asia_p3_test.records,testrecords/z16_asia_p4_test.records,testrecords/z16_asia_p5_test.records --output_tfrecord_path=tfod_cm/tf_object_detection_cm/detections_xviewz151617_dota.record --inference_graph=dota_xview_3m_airplanes/frozen_inference_graph.pb`
+from ` % models/research/object_detection/` run `python3 inference/infer_detections.py --input_tfrecord_paths=testrecords/test.records,testrecords/test1.records,testrecords/test2.records,testrecords/test3.records --output_tfrecord_path=tf_object_detection_cm/detections.record --inference_graph=export/frozen_inference_graph.pb`
 
 Once this script has finished you should have your compiled detections tfrecords file. This file is to be used in part 2.
 
@@ -48,24 +48,23 @@ The script requires input for the detections tfrecords file (which we get from p
 
 Example usage:
 
-`python3 eval_cmatrix_f1_map.py --detections_record=detections_xviewz151617_dota.record --label_map=airplanes_1class.pbtxt --output_path=airplanes_cm.csv`
+`python3 eval_cmatrix_f1_map.py --detections_record=tf_object_detection_cm/detections.record --label_map=marine_debris.pbtxt --output_path=marine_debris_cm.csv`
 
 You should get a confusion matrix printed out as well as the scores.
 
 Formatted example of resulting metrics:
 
-| | Predicted planes | Predicted none | 
+| | Predicted debris | Predicted none | 
 |---| ---| ---| 
-| **True planes** | 264 | 161 | 
-| **True none** | 238 | 0 | 
-
+| **True debris** | 38 | 16 | 
+| **True none** | 11 | 0 | 
 
 
 | True Positive |  False Positive |  False Negative | 
 |---| ---| ---| 
-| 264 | 238 | 161 | 
+| 38 | 11 | 16 | 
 
 
-| category |  precision_@0.5IOU |  recall_@0.5IOU |  map_@0.5IOU |  f1_@0.5IOU | 
-|---| ---| ---| ---| ---| 
-| plane | 0.525896 | 0.621176  |  0.525896 | 0.569579
+| category |  precision_@0.5IOU |  recall_@0.5IOU | map_@0.5IOU  | f1_@0.5IOU | 
+|---| ---| ---| ---|  ---| 
+| marine_debris | 0.78  | 0.70  | 0.78 | 0.74
