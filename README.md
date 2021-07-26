@@ -39,9 +39,9 @@ Scaled model inference pipeline:
 Detections geo-registered and vectorized to GeoJSON format:
 <img src="assets/detections_geo.png" width="800px" height="auto">
  
-# Implementation
+## Implementation
 
-## 1. Model training and inference
+### 1. Model training and inference
 
 We recommend creating a python 3.6+ virtual environment for this project. You can use [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv) to do so.
 
@@ -54,16 +54,16 @@ tensorflow-estimator==1.14.0
 tensorflow-gpu==1.14.0
 ```
 
-## 2. Setup TensorFlow Object Detection API
+### 2. Setup TensorFlow Object Detection API
 
-### 2a. Install TensorFlow object detection:
+#### 2a. Install TensorFlow object detection:
 - Download the necessary scripts with `git clone https://github.com/tensorflow/models.git`
 - Install TensorFlow Object Detection API by strictly following [these instructions](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/tf1.md). Once you've successfully run `python object_detection/builders/model_builder_test.py` you are ready for the next step.
 - To access the necessary utility scripts, you'll need to run all the following commands from the `models/research/object_detection` directory from the cloned repo. **From here on we will refer the TensorFlow Object Detection directory `models/research/object_detection/` as the TOD directory.**
 
 You could also work from this [codebase](https://github.com/NASA-IMPACT/marine_litter_ML/tree/main/object_detection_api) as a stable implementation with the above listed TF library versions. Just ensure that repo folder is set as `models/research/object_detection/`.
 
-## 3. Create TFRecords for model training
+### 3. Create TFRecords for model training
 Tensorflow API supports a variety of file formats. The TFRecord file format is a simple record-oriented binary format that many TensorFlow applications use. We have example code in this repo which converts the `labels.npz` file to a TFRecords file:
 
 - Copy [`utils_convert_tfrecords.py` from this repo](https://github.com/NASA-IMPACT/marine_litter_ML/blob/main/data_utils/utils_convert_tfrecords.py) to the TOD directory, .
@@ -101,7 +101,7 @@ models/research/object_detection/
 └───
 ```
 
-## 5. Train the TensorFlow object detection model
+### 5. Train the TensorFlow object detection model
 You are now ready to train the model. From the `models/research/` directory, run:
 
 ```shell
@@ -115,7 +115,7 @@ python model_main.py --alsologtostderr --model_dir=training/ --pipeline_config_p
 
 The model checkpoints and outputs for this task will save in the `training` folder. 
 
-## 6. Visualize the Model
+### 6. Visualize the Model
 Using this [script](https://github.com/NASA-IMPACT/marine_litter_ML/tree/main/object_detection_api/export_inference_graph.py), create the building detection model inference graph with:
 
 ```shell
@@ -136,7 +136,7 @@ Go to `http://127.0.0.1:6006/` in your web browser and you will see:
 <img src="assets/tensorboard.png" width="1000" />
 </p>
 
-## 7. Prediction
+### 7. Prediction
 Now let's run the model over our test tiles to predict where buildings are. Copy [this script](https://github.com/NASA-IMPACT/marine_litter_ML/blob/v0_2/inference_utils/tf_od_predict_image_aug_to_geo_corrected.py) to the TOD directory then run:
 
 ```shell
@@ -154,5 +154,5 @@ export EXPORT_DIR=models/research/object_detection/model_50k
 python3 ${base_dir}/tf_od_predict_image_aug_to_geo_corrected.py --model_name=${EXPORT_DIR} --path_to_label=${base_dir}/marine_debris.pbtxt --test_image_path=${base_dir}/test/
 ```
 
-## 8. Evaluation
+### 8. Evaluation
 You can use the [code](https://github.com/NASA-IMPACT/marine_litter_ML/tree/main/evaluation_utils) in this folder to compute standard evaluation metrics with your model. Runtime and background instructions live [here](https://github.com/NASA-IMPACT/marine_litter_ML/tree/main/evaluation_utils/evaluation.md).
