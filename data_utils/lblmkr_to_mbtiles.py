@@ -17,7 +17,7 @@ def main(tiles_dir, mbtiles_dir, zoom):
     """
     reads in a tiles directory exported from label-maker, parses the tile names
     and separates the x and y coordinates as well as zoom level from the filenames,
-    renaming the tile paths to a nested structure of zoom/x/y.png
+    renaming the tile paths to a nested structure of zoom/x/y.jpg
     """
     if not os.path.exists(mbtiles_dir):
         os.makedirs(mbtiles_dir)
@@ -41,7 +41,7 @@ def main(tiles_dir, mbtiles_dir, zoom):
         x_dir = os.path.join(z_dir,str(t_split[0]))
         if not os.path.exists(x_dir):
           os.makedirs(x_dir)
-        dst_t = x_dir+'/'+t_split[1]+'.png'
+        dst_t = x_dir+'/'+t_split[1]+'.jpg'
         copyfile(t, dst_t)
 
 def parse_arg(args):
